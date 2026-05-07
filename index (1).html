@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stimlog</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #070b14;
+    --surface: #0d1321;
+    --surface2:#131d30;
+    --border:  rgba(120,160,255,0.1);
+    --accent:  #6eaaff;
+    --text:    #dce8ff;
+    --muted:   #4a6080;
+    --ok:      #00c9a7;
+    --warn:    #ffb347;
+    --danger:  #ff4f4f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px 60px;
+    gap: 32px;
+  }
+
+  /* ── Logo ── */
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── Ring ── */
+  .ring-wrap {
+    position: relative;
+    width: 240px;
+    height: 240px;
+  }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg  { fill: none; stroke: var(--surface2); stroke-width: 12; }
+  .ring-arc { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .4s; }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    pointer-events: none;
+  }
+  .ring-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .ring-mg    { font-family: 'DM Mono', monospace; font-size: 48px; font-weight: 500; line-height: 1; transition: color .4s; }
+  .ring-unit  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .ring-sub   { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+  /* ── Stats ── */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+  .stat-val   { font-family: 'DM Mono', monospace; font-size: 22px; color: var(--text); }
+  .stat-unit  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+
+  /* ── Plus button ── */
+  .plus-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #070b14;
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform .15s, opacity .15s;
+  }
+  .plus-btn:hover  { opacity: .85; }
+  .plus-btn:active { transform: scale(.93); }
+
+  /* ── Log list ── */
+  .logs { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; }
+  .logs-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .clear-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); transition: color .15s; }
+  .clear-btn:hover { color: var(--danger); }
+
+  .log-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .log-icon { font-size: 18px; }
+  .log-name { font-size: 13px; flex: 1; }
+  .log-time { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .log-mg   { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); }
+  .log-del  { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 13px; transition: color .15s; }
+  .log-del:hover { color: var(--danger); }
+
+  .empty { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-align: center; padding: 12px 0; }
+
+  /* ── Modal (bottom sheet) ── */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(7,11,20,.8);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  .modal-bg.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 400px;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+  }
+  .modal-bg.open .modal { transform: translateY(0); }
+
+  .modal-handle { width: 32px; height: 4px; background: var(--surface2); border-radius: 99px; margin: 0 auto 20px; }
+  .modal-title  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 14px; }
+
+  .drink-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  .drink-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: border-color .15s;
+  }
+  .drink-btn.sel  { border-color: var(--accent); background: rgba(110,170,255,.08); }
+  .drink-icon2    { font-size: 18px; }
+  .drink-name2    { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); text-align: center; }
+  .drink-mg2      { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); }
+
+  .modal-fields { display: flex; gap: 10px; margin-bottom: 14px; }
+  .m-field { flex: 1; }
+  .m-field label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 5px; }
+  .m-field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 9px 11px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .m-field input:focus { border-color: var(--accent); }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #070b14;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .confirm-btn:hover { opacity: .85; }
+</style>
+</head>
+<body>
+
+<div class="logo">Stimlog</div>
+
+<!-- Ring -->
+<div class="ring-wrap">
+  <svg width="240" height="240" viewBox="0 0 240 240">
+    <circle class="ring-bg"  cx="120" cy="120" r="100"/>
+    <circle class="ring-arc" id="r-arc" cx="120" cy="120" r="100"
+      stroke="var(--ok)" stroke-dasharray="628.3" stroke-dashoffset="628.3"/>
+  </svg>
+  <div class="ring-center">
+    <div class="ring-label">Aktiv im Blut</div>
+    <div class="ring-mg" id="r-mg">0</div>
+    <div class="ring-unit">/ 400 mg</div>
+    <div class="ring-sub" id="r-sub"></div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">Heute total</div>
+    <div class="stat-val" id="s-total">0</div>
+    <div class="stat-unit">mg</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Noch aktiv</div>
+    <div class="stat-val" id="s-pct">0%</div>
+    <div class="stat-unit">vom total</div>
+  </div>
+</div>
+
+<!-- Plus button -->
+<button class="plus-btn" onclick="openModal()">+</button>
+
+<!-- Log list -->
+<div class="logs">
+  <div class="logs-header">
+    <span>Heute</span>
+    <button class="clear-btn" onclick="clearAll()">Alle löschen</button>
+  </div>
+  <div id="log-list"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Getränk wählen</div>
+    <div class="drink-grid" id="drink-grid"></div>
+    <div class="modal-fields">
+      <div class="m-field">
+        <label>Uhrzeit</label>
+        <input type="time" id="m-time">
+      </div>
+      <div class="m-field" id="custom-field" style="display:none">
+        <label>mg</label>
+        <input type="number" id="m-mg" placeholder="80" min="1" max="999">
+      </div>
+    </div>
+    <button class="confirm-btn" onclick="addLog()">Tracken</button>
+  </div>
+</div>
+
+<script>
+// ── Getränke-Daten ─────────────────────────────────────────────────────────────
+const DRINKS = [
+  { key: 'espresso', label: 'Espresso', icon: '☕', mg: 63  },
+  { key: 'filter',   label: 'Filter',   icon: '☕', mg: 95  },
+  { key: 'cappucc',  label: 'Cappucc.', icon: '🥛', mg: 63  },
+  { key: 'energy',   label: 'Energy',   icon: '⚡', mg: 80  },
+  { key: 'matcha',   label: 'Matcha',   icon: '🍵', mg: 35  },
+  { key: 'cola',     label: 'Cola',     icon: '🥤', mg: 34  },
+  { key: 'doppel',   label: 'Doppel',   icon: '☕', mg: 126 },
+  { key: 'custom',   label: 'Custom',   icon: '✏️', mg: 0   },
+];
+
+const LIMIT    = 400;            // mg Tageslimit
+const HALFLIFE = 5.5;            // Stunden Halbwertszeit
+const CIRC     = 2 * Math.PI * 100; // Kreisumfang bei r=100 → 628.3
+
+const today   = () => new Date().toISOString().slice(0, 10);
+let   selected = 'espresso';
+
+// ── LocalStorage ───────────────────────────────────────────────────────────────
+function loadLogs() {
+  try { return JSON.parse(localStorage.getItem('stimlog') || '[]'); } catch { return []; }
+}
+function saveLogs(logs) {
+  localStorage.setItem('stimlog', JSON.stringify(logs));
+}
+
+// ── Koffein-Berechnung ─────────────────────────────────────────────────────────
+// Wie viel mg aktuell noch im Blut sind (Halbwertszeit-Formel)
+function calcActiveMg(logs) {
+  const now = Date.now();
+  return logs
+    .filter(l => l.date === today())
+    .reduce((sum, l) => {
+      const hoursAgo = (now - l.ts) / 3600000;
+      return sum + l.mg * Math.pow(0.5, hoursAgo / HALFLIFE);
+    }, 0);
+}
+
+// Wie viel mg heute total aufgenommen
+function calcTotalMg(logs) {
+  return logs.filter(l => l.date === today()).reduce((s, l) => s + l.mg, 0);
+}
+
+// Uhrzeit, wann Koffein unter 5 mg fällt
+function calcClearTime(logs) {
+  const active = calcActiveMg(logs);
+  if (active < 5) return null;
+  const hoursLeft = HALFLIFE * Math.log2(active / 5);
+  return new Date(Date.now() + hoursLeft * 3600000);
+}
+
+// ── UI aktualisieren ───────────────────────────────────────────────────────────
+function render() {
+  const logs   = loadLogs();
+  const active = calcActiveMg(logs);
+  const total  = calcTotalMg(logs);
+
+  // Ringfarbe: grün → orange → rot je nach Menge
+  const color = active < 100 ? 'var(--ok)' : active < 250 ? 'var(--warn)' : 'var(--danger)';
+
+  // Ring-Bogen aktualisieren
+  const arc = document.getElementById('r-arc');
+  arc.style.strokeDashoffset = (CIRC * (1 - Math.min(active / LIMIT, 1))).toFixed(1);
+  arc.setAttribute('stroke', color);
+
+  // Zahlen in der Ringmitte
+  const mgEl = document.getElementById('r-mg');
+  mgEl.textContent = Math.round(active);
+  mgEl.style.color = color;
+
+  // Koffeinfreizeit anzeigen
+  const clearTime = calcClearTime(logs);
+  document.getElementById('r-sub').textContent = clearTime
+    ? 'frei ~' + clearTime.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' })
+    : active < 5 ? '✓ kein Koffein' : '';
+
+  // Stats
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-pct').textContent   = total > 0
+    ? Math.round((active / total) * 100) + '%'
+    : '0%';
+
+  // Log-Liste
+  const todayLogs = logs.filter(l => l.date === today()).sort((a, b) => b.ts - a.ts);
+  const listEl    = document.getElementById('log-list');
+
+  if (todayLogs.length === 0) {
+    listEl.innerHTML = '<div class="empty">— noch keine logs heute —</div>';
+    return;
+  }
+
+  listEl.innerHTML = todayLogs.map(l => {
+    const time = new Date(l.ts).toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="log-row">
+        <span class="log-icon">${l.icon}</span>
+        <span class="log-name">${l.label}</span>
+        <span class="log-time">${time}</span>
+        <span class="log-mg">${l.mg} mg</span>
+        <button class="log-del" onclick="deleteLog('${l.id}')">✕</button>
+      </div>`;
+  }).join('');
+}
+
+// ── Getränke-Grid im Modal aufbauen ───────────────────────────────────────────
+function buildGrid() {
+  document.getElementById('drink-grid').innerHTML = DRINKS.map(d => `
+    <div class="drink-btn ${d.key === selected ? 'sel' : ''}" onclick="selectDrink('${d.key}')">
+      <div class="drink-icon2">${d.icon}</div>
+      <div class="drink-name2">${d.label}</div>
+      <div class="drink-mg2">${d.mg || '?'} mg</div>
+    </div>`).join('');
+}
+
+function selectDrink(key) {
+  selected = key;
+  buildGrid();
+  // Custom-Feld nur bei "custom" anzeigen
+  document.getElementById('custom-field').style.display = key === 'custom' ? 'block' : 'none';
+}
+
+// ── Modal öffnen / schliessen ──────────────────────────────────────────────────
+function openModal() {
+  // Aktuelle Uhrzeit vorausfüllen
+  const now = new Date();
+  document.getElementById('m-time').value =
+    String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  buildGrid();
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
+
+// Klick auf Hintergrund schliesst Modal
+function bgClick(e) {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+}
+
+// ── Log hinzufügen ─────────────────────────────────────────────────────────────
+function addLog() {
+  const drink = DRINKS.find(d => d.key === selected);
+
+  // mg bestimmen
+  let mg = drink.mg;
+  if (selected === 'custom') {
+    mg = parseInt(document.getElementById('m-mg').value);
+    if (!mg || mg < 1) { alert('Bitte mg eingeben.'); return; }
+  }
+
+  // Zeitstempel aus Uhrzeit-Input
+  const timeVal = document.getElementById('m-time').value;
+  let ts = Date.now();
+  if (timeVal) {
+    const [h, m] = timeVal.split(':').map(Number);
+    const d = new Date(); d.setHours(h, m, 0, 0);
+    ts = d.getTime();
+  }
+
+  // Neuen Log speichern
+  const logs = loadLogs();
+  logs.unshift({
+    id:    Date.now().toString(36),
+    label: drink.label,
+    icon:  drink.icon,
+    mg,
+    ts,
+    date:  today()
+  });
+  saveLogs(logs);
+
+  closeModal();
+  render();
+}
+
+// ── Löschen ────────────────────────────────────────────────────────────────────
+function deleteLog(id) {
+  saveLogs(loadLogs().filter(l => l.id !== id));
+  render();
+}
+
+function clearAll() {
+  if (!confirm('Alle heutigen Logs löschen?')) return;
+  saveLogs(loadLogs().filter(l => l.date !== today()));
+  render();
+}
+
+// ── Start ──────────────────────────────────────────────────────────────────────
+render();
+setInterval(render, 60000); // jede Minute neu berechnen
+</script>
+</body>
+</html>
