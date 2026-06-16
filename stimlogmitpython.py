@@ -73,6 +73,41 @@ def alle_loeschen():
 
 # ── Streamlit Seite ────────────────────────────────────────────
 st.set_page_config(page_title="Stimlog", page_icon="☕")
+if "splash_fertig" not in st.session_state:
+    st.session_state.splash_fertig = False
+
+if not st.session_state.splash_fertig:
+    st.html("""
+    <style>
+      body { background: #070b14; }
+    </style>
+    <div style="
+      position: fixed; inset: 0;
+      background: #070b14;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+    ">
+      <p style="
+        font-family: monospace;
+        font-size: 28px;
+        letter-spacing: 0.4em;
+        color: #6eaaff;
+        margin: 0;
+      ">STIMLOG</p>
+      <p style="
+        font-family: monospace;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        color: #4a6080;
+        margin: 0;
+      ">klicken zum starten</p>
+    </div>
+    """)
+    if st.button("Start", use_container_width=True):
+        st.session_state.splash_fertig = True
+        st.rerun()
+    st.stop()
 
 logs       = logs_laden()
 aktiv      = aktive_mg(logs)
