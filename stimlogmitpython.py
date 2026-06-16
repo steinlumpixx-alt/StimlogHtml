@@ -3,6 +3,7 @@ import json
 import os
 import math
 from datetime import datetime, date, timedelta
+import emoji
 
 # ── Einstellungen ──────────────────────────────────────────────
 TAGESLIMIT    = 400
@@ -12,6 +13,7 @@ LOG_DATEI     = "logs.json"
 # ── Listen ─────────────────────────────────────────────────────
 # Format: [name, emoji, mg]
 getraenke = [
+    ["Pre Workout",     "", 126],
     ["Espresso",   "☕", 63 ],
     ["Filter",     "☕", 95 ],
     ["Cappuccino", "🥛", 63 ],
