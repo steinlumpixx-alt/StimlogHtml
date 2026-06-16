@@ -76,17 +76,16 @@ st.set_page_config(page_title="Stimlog", page_icon="☕")
 def splash_zeigen():
     st.html("""
     <style>
-      /* versteckt alles von Streamlit im Hintergrund */
-      header, footer, section[data-testid="stSidebar"] { display: none; }
+      header, footer { display: none; }
       .stApp { background: #070b14; }
+      div[data-testid="stVerticalBlock"] { background: #070b14; }
     </style>
-    <div onclick="window.parent.document.querySelector('button').click()"
-      style="
-        position: fixed; inset: 0; z-index: 9999;
+    <div style="
+        position: fixed; inset: 0; z-index: 999;
         background: #070b14;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        gap: 16px; cursor: pointer;
+        gap: 16px; pointer-events: none;
       ">
       <p style="font-family:monospace; font-size:28px; letter-spacing:0.4em; color:#6eaaff; margin:0;">
         STIMLOG
@@ -96,12 +95,26 @@ def splash_zeigen():
       </p>
     </div>
     """)
-    # unsichtbarer Button den der Klick oben auslöst
-    if st.button(" "):
+    st.markdown("""
+    <style>
+      /* Button komplett unsichtbar aber klickbar */
+      div[data-testid="stButton"] button {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 9999;
+        color: transparent;
+      }
+    </style>
+    """, unsafe_allow_html=True)
+    if st.button("start"):
         st.session_state.splash_fertig = True
         st.rerun()
     st.stop()
-
 # ── App starten ────────────────────────────────────────────────
 st.set_page_config(page_title="Stimlog", page_icon="☕", layout="centered")
 
