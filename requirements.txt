@@ -1,2 +1,3 @@
 streamlit
 # pandas- brauchen wir nicht mehr, weil wir alle tabellen in py machen
+emoji
