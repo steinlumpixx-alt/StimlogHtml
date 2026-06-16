@@ -13,14 +13,14 @@ LOG_DATEI     = "logs.json"
 # ── Listen ─────────────────────────────────────────────────────
 # Format: [name, emoji, mg]
 getraenke = [
-    ["Pre Workout",     "\U0001F608", 126],
-    ["Espresso",   "☕", 63 ],
-    ["Filter",     "☕", 95 ],
-    ["Cappuccino", "🥛", 63 ],
-    ["Energy",     "⚡", 80 ],
-    ["Matcha",     "🍵", 35 ],
-    ["Cola",       "🥤", 34 ],
-    ["Doppel",     "☕", 126],
+    ["Pre Workout",     "\U0001F608", 300],
+    ["Espresso",   "\u2615", 63 ],
+    ["Filter",     "\u2615", 95 ],
+    ["Cappuccino", "\u2615", 63 ],
+    ["Energy",     "\U0001F964\u26A1", 80 ],
+    ["Matcha",     "\U0001F375", 35 ],
+    ["Cola",       "\U0001F964", 34 ],
+    ["Doppel",     "\u2615", 126],
 ]
 
 # ── Daten laden und speichern ──────────────────────────────────
