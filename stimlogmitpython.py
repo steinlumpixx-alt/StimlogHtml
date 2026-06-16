@@ -116,7 +116,7 @@ def splash_zeigen():
         st.rerun()
     st.stop()
 # ── App starten ────────────────────────────────────────────────
-st.set_page_config(page_title="Stimlog", page_icon="☕", layout="centered")
+st.set_page_config(page_title="Stimlog", page_icon="\u26A1", layout="centered")
 
 if "splash_fertig" not in st.session_state:
     st.session_state.splash_fertig = False
