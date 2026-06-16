@@ -118,7 +118,7 @@ else:
         alle_loeschen()
         st.rerun()
 
-# ── HTML Ring (am Schluss) ─────────────────────────────────────
+# ── HTML Ring mit py befehl versuch 
 def ring_html(aktiv, frei):
     offset = 628.3 * (1 - min(aktiv / TAGESLIMIT, 1.0))
 
@@ -126,7 +126,7 @@ def ring_html(aktiv, frei):
     elif aktiv < 250: farbe = "#ffb347"
     else:             farbe = "#ff4f4f"
 
-    untertitel = f"frei ~{frei}" if frei else ("✓ kein Koffein" if aktiv < 5 else "")
+    untertitel = f"frei ~{frei}" if frei else (" kein Koffein im Blut" if aktiv < 5 else "")
 
     return f"""
     <style>
