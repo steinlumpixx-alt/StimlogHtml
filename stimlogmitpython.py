@@ -73,45 +73,43 @@ def alle_loeschen():
 
 # ── Streamlit Seite ────────────────────────────────────────────
 st.set_page_config(page_title="Stimlog", page_icon="☕")
+def splash_zeigen():
+    st.html("""
+    <style>
+      /* versteckt alles von Streamlit im Hintergrund */
+      header, footer, section[data-testid="stSidebar"] { display: none; }
+      .stApp { background: #070b14; }
+    </style>
+    <div onclick="window.parent.document.querySelector('button').click()"
+      style="
+        position: fixed; inset: 0; z-index: 9999;
+        background: #070b14;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 16px; cursor: pointer;
+      ">
+      <p style="font-family:monospace; font-size:28px; letter-spacing:0.4em; color:#6eaaff; margin:0;">
+        STIMLOG
+      </p>
+      <p style="font-family:monospace; font-size:11px; letter-spacing:0.2em; color:#4a6080; margin:0;">
+        klicken zum starten
+      </p>
+    </div>
+    """)
+    # unsichtbarer Button den der Klick oben auslöst
+    if st.button(" "):
+        st.session_state.splash_fertig = True
+        st.rerun()
+    st.stop()
+
+# ── App starten ────────────────────────────────────────────────
+st.set_page_config(page_title="Stimlog", page_icon="☕", layout="centered")
+
 if "splash_fertig" not in st.session_state:
     st.session_state.splash_fertig = False
 
-import time
- 
-if "splash_fertig" not in st.session_state:
-    st.session_state.splash_fertig = False
- 
 if not st.session_state.splash_fertig:
-    st.html("""
-    <style>
-      body { background: #070b14; }
-    </style>
-    <div style="
-      position: fixed; inset: 0;
-      background: #070b14;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 24px;
-    ">
-      <p style="
-        font-family: monospace;
-        font-size: 28px;
-        letter-spacing: 0.4em;
-        color: #6eaaff;
-        margin: 0;
-      ">STIMLOG</p>
-      <p style="
-        font-family: monospace;
-        font-size: 11px;
-        letter-spacing: 0.2em;
-        color: #4a6080;
-        margin: 0;
-      ">klicken zum starten</p>
-    </div>
-    """)
-    if st.button("​", use_container_width=True, help=""):  # unsichtbarer Button
-        st.session_state.splash_fertig = True
-        st.rerun()
+    splash_zeigen()
 
 logs       = logs_laden()
 aktiv      = aktive_mg(logs)
