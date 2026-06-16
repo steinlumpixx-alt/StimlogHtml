@@ -13,7 +13,7 @@ LOG_DATEI     = "logs.json"
 # ── Listen ─────────────────────────────────────────────────────
 # Format: [name, emoji, mg]
 getraenke = [
-    ["Pre Workout",     "", 126],
+    ["Pre Workout",     "\U0001F608", 126],
     ["Espresso",   "☕", 63 ],
     ["Filter",     "☕", 95 ],
     ["Cappuccino", "🥛", 63 ],
