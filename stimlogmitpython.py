@@ -76,6 +76,11 @@ st.set_page_config(page_title="Stimlog", page_icon="☕")
 if "splash_fertig" not in st.session_state:
     st.session_state.splash_fertig = False
 
+import time
+ 
+if "splash_fertig" not in st.session_state:
+    st.session_state.splash_fertig = False
+ 
 if not st.session_state.splash_fertig:
     st.html("""
     <style>
@@ -104,10 +109,9 @@ if not st.session_state.splash_fertig:
       ">klicken zum starten</p>
     </div>
     """)
-    if st.button("Start", use_container_width=True):
+    if st.button("​", use_container_width=True, help=""):  # unsichtbarer Button
         st.session_state.splash_fertig = True
         st.rerun()
-    st.stop()
 
 logs       = logs_laden()
 aktiv      = aktive_mg(logs)
