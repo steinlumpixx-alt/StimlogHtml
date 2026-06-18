@@ -138,8 +138,9 @@ col1, col2 = st.columns(2)
 col1.metric("Heute total", f"{total} mg")
 col2.metric("Noch aktiv", f"{round(aktiv / total * 100) if total > 0 else 0}%")
 
+#warunung für imitüberschreittung
 if total > TAGESLIMIT:
-    st.warning("⚠️ Tageslimit überschritten!")
+    st.warning("\u26A0\uFE0F", "Tageslimit überschritten!")
 
 st.divider()
 
