@@ -140,7 +140,7 @@ col2.metric("Noch aktiv", f"{round(aktiv / total * 100) if total > 0 else 0}%")
 
 #warunung für imitüberschreittung
 if total > TAGESLIMIT:
-    st.warning("⚠️", "Tageslimit überschritten!")
+    st.warning("⚠️Tageslimit überschritten!")
 
 st.divider()
 
