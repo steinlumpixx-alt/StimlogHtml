@@ -21,6 +21,8 @@ getraenke = [
     ["Matcha",     "\U0001F375", 35 ],
     ["Cola",       "\U0001F964", 34 ],
     ["Doppel",     "\u2615", 126],
+    ["Dunkle Schokolade",     "\U0001F36B", 60],
+    ["Koffein Pille",     "\U0001F48A", 200],
 ]
 
 # ── Daten laden und speichern ──────────────────────────────────
@@ -58,7 +60,7 @@ def koffeinfrei_um(aktiv):
 # ── Log hinzufügen / löschen ───────────────────────────────────
 def log_hinzufuegen(name, emoji, mg):
     logs = logs_laden()
-    # Jeder Log: [datum, zeitstempel, mg, name, emoji]
+    # alle Log: [datum, zeitstempel, mg, name, emoji]
     logs.insert(0, [heute(), datetime.now().isoformat(), mg, name, emoji])
     logs_speichern(logs)
 
@@ -72,7 +74,7 @@ def alle_loeschen():
     logs_speichern([log for log in logs if log[0] != heute()])
 
 # ── Streamlit Seite ────────────────────────────────────────────
-st.set_page_config(page_title="Stimlog", page_icon="☕")
+st.set_page_config(page_title="Stimlog", page_icon="\u26A1")
 def splash_zeigen():
     st.html("""
     <style>
