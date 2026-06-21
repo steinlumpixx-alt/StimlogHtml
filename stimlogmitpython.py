@@ -66,13 +66,20 @@ def aktive_mg(logs):
 def koffeinfrei_um(aktiv):
     if aktiv < 5:
         return None
-    stunden = HALBWERTSZEIT * math.log2(aktiv / 5)
-    return (datetime.now() + timedelta(hours=stunden)).strftime("%H:%M")
+    
+    stunden = 0
+    aktueller_wert = aktiv
+    while aktueller_wert > 5:
+        aktueller_wert = aktueller_wert * 0.9
+        stunden = stunden + 0.5
+        
+    zeitpunkt = datetime.now() + timedelta(hours=stunden)
+    uhrzeit_text = zeitpunkt.strftime("%H:%M")
+    return uhrzeit_text
 
 # ── Log hinzufügen und auch löschen
 def log_hinzufuegen(name, emoji, mg):
     logs = logs_laden()
-    # alle Log [datum, zeit, mg, name, emoji]
     logs.insert(0, [heute(), datetime.now().isoformat(), mg, name, emoji])
     logs_speichern(logs)
 
@@ -145,14 +152,25 @@ if not st.session_state.splash_fertig:
 logs       = logs_laden()
 aktiv      = aktive_mg(logs)
 frei       = koffeinfrei_um(aktiv)
-heute_logs = [log for log in logs if log[0] == heute()]
-total      = sum(log[2] for log in heute_logs)
+
+heute_logs = []
+for log in logs:
+    if log[0] == heute():
+        heute_logs.append(log)
+
+total = 0
+for log in heute_logs:
+    total = total + log[2]
 
 st.markdown("<p style='font-family:monospace;color:#4a6080;letter-spacing:0.2em'>STIMLOG</p>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 col1.metric("Heute total", f"{total} mg")
-col2.metric("Noch aktiv", f"{round(aktiv / total * 100) if total > 0 else 0}%")
+
+prozent_wert = 0
+if total > 0:
+    prozent_wert = round(aktiv / total * 100)
+col2.metric("Noch aktiv", f"{prozent_wert}%")
 
 #warunung für imitüberschreittung
 if total > TAGESLIMIT:
@@ -160,7 +178,10 @@ if total > TAGESLIMIT:
 
 st.divider()
 
-namen = [f"{g[1]} {g[0]} ({g[2]} mg)" for g in getraenke]
+namen = []
+for g in getraenke:
+    namen.append(f"{g[1]} {g[0]} ({g[2]} mg)")
+
 wahl  = st.selectbox("Getränk", namen, label_visibility="collapsed")
 index = namen.index(wahl)
 mg    = st.number_input("mg", value=getraenke[index][2], min_value=1, max_value=999)
@@ -193,7 +214,7 @@ def ring_html(aktiv, frei):
 
     if   aktiv < 100: farbe = "#00c9a7"
     elif aktiv < 250: farbe = "#ffb347"
-    else:             farbe = "#ff4f4f"
+    else:              farbe = "#ff4f4f"
 
     untertitel = f"frei ~{frei}" if frei else (" kein Koffein im Blut" if aktiv < 5 else "")
 
