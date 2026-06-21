@@ -5,12 +5,12 @@ import math
 from datetime import datetime, date, timedelta
 import emoji
 
-# ── Einstellungen ──────────────────────────────────────────────
+# ── Einstellungen 
 TAGESLIMIT    = 400
 HALBWERTSZEIT = 5.5
 LOG_DATEI     = "logs.json"
 
-# ── Listen ─────────────────────────────────────────────────────
+# ── Listen 
 # Format: [name, emoji, mg]
 getraenke = [
     ["Pre Workout",     "\U0001F608", 300],
@@ -25,7 +25,7 @@ getraenke = [
     ["Koffein Pille",     "\U0001F48A", 200],
 ]
 
-# ── Daten laden und speichern ──────────────────────────────────
+# ── Daten laden undd speichern 
 def logs_laden():
     if not os.path.exists(LOG_DATEI):
         return []
@@ -36,7 +36,7 @@ def logs_speichern(logs):
     with open(LOG_DATEI, "w") as f:
         json.dump(logs, f)
 
-# ── Berechnungen ───────────────────────────────────────────────
+# ── Berechnungen 
 def heute():
     return date.today().isoformat()
 
@@ -57,10 +57,10 @@ def koffeinfrei_um(aktiv):
     stunden = HALBWERTSZEIT * math.log2(aktiv / 5)
     return (datetime.now() + timedelta(hours=stunden)).strftime("%H:%M")
 
-# ── Log hinzufügen / löschen ───────────────────────────────────
+# ── Log hinzufügen und auch löschen
 def log_hinzufuegen(name, emoji, mg):
     logs = logs_laden()
-    # alle Log: [datum, zeitstempel, mg, name, emoji]
+    # alle Log: [datum, zeit, mg, name, emoji]
     logs.insert(0, [heute(), datetime.now().isoformat(), mg, name, emoji])
     logs_speichern(logs)
 
@@ -73,7 +73,7 @@ def alle_loeschen():
     logs = logs_laden()
     logs_speichern([log for log in logs if log[0] != heute()])
 
-# ── Streamlit Seite ────────────────────────────────────────────
+# ── Streamlit Seite
 st.set_page_config(page_title="Stimlog", page_icon="\u26A1")
 def splash_zeigen():
     st.html("""
