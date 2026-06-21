@@ -51,12 +51,16 @@ def heute():
 def aktive_mg(logs):
     total = 0
     jetzt = datetime.now()
+    
     for log in logs:
-        if log[0] != heute():
-            continue
-        aufgenommen = datetime.fromisoformat(log[1])
-        stunden_her = (jetzt - aufgenommen).total_seconds() / 3600
-        total += log[2] * math.pow(0.5, stunden_her / HALBWERTSZEIT)
+        if log[0] == heute():
+            aufgenommen = datetime.fromisoformat(log[1])
+            zeit_differenz = jetzt - aufgenommen
+            stunden_her = zeit_differenz.total_seconds() / 3600
+            
+            faktor = 0.5 ** (stunden_her / HALBWERTSZEIT)
+            total = total + (log[2] * faktor)
+            
     return round(total, 1)
 
 def koffeinfrei_um(aktiv):
