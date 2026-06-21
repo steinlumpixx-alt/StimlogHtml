@@ -11,7 +11,7 @@ HALBWERTSZEIT = 5.5
 LOG_DATEI     = "logs.json"
 
 # ── Listen 
-# Format: [name, emoji, mg]
+# Formatt [name, emoji, mg]
 getraenke = [
     ["Pre Workout",     "\U0001F608", 300],
     ["Espresso",   "\u2615", 63 ],
@@ -25,16 +25,24 @@ getraenke = [
     ["Koffein Pille",     "\U0001F48A", 200],
 ]
 
-# ── Daten laden undd speichern 
 def logs_laden():
-    if not os.path.exists(LOG_DATEI):
-        return []
-    with open(LOG_DATEI, "r") as f:
-        return json.load(f)
+    datei_existiert = os.path.exists(LOG_DATEI)
+    
+    if datei_existiert == False:
+        leere_liste = []
+        return leere_liste
+    datei = open(LOG_DATEI, "r")
+    datei_inhalt_text = datei.read()
+    datei.close()
+    geladene_logs = json.loads(datei_inhalt_text)
+    return geladene_logs
+
 
 def logs_speichern(logs):
-    with open(LOG_DATEI, "w") as f:
-        json.dump(logs, f)
+    logs_als_text = json.dumps(logs)
+    datei = open(LOG_DATEI, "w")
+    datei.write(logs_als_text)
+    datei.close()
 
 # ── Berechnungen 
 def heute():
@@ -60,7 +68,7 @@ def koffeinfrei_um(aktiv):
 # ── Log hinzufügen und auch löschen
 def log_hinzufuegen(name, emoji, mg):
     logs = logs_laden()
-    # alle Log: [datum, zeit, mg, name, emoji]
+    # alle Log [datum, zeit, mg, name, emoji]
     logs.insert(0, [heute(), datetime.now().isoformat(), mg, name, emoji])
     logs_speichern(logs)
 
@@ -70,8 +78,12 @@ def log_loeschen(index):
     logs_speichern(logs)
 
 def alle_loeschen():
-    logs = logs_laden()
-    logs_speichern([log for log in logs if log[0] != heute()])
+    alle_logs = logs_laden()
+    logs_die_bleiben = []
+    for log in alle_logs:
+        if log[0] != heute():
+            logs_die_bleiben.append(log)
+    logs_speichern(logs_die_bleiben)
 
 # ── Streamlit Seite
 st.set_page_config(page_title="Stimlog", page_icon="\u26A1")
